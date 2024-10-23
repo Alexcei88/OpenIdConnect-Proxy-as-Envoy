@@ -1,0 +1,12 @@
+// запуск докера для версии
+docker run --rm -t envoyproxy/envoy:v1.31-latest --version
+
+
+// запуск envoy с моих конфигом
+
+1. запуска примера
+docker run --rm -t -p 14100:14100 -v /mnt/d/TempProject/МК/usergroups-openid-connect-with-duende-identity-server/envoy/:/etc/envoy envoyproxy/envoy:v1.31-latest -c /etc/envoy/envoy.yaml
+
+
+// ip адрес wsl
+wsl -d Ubuntu-22.04 hostname -I
