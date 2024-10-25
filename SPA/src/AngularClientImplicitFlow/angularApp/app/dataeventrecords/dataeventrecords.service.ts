@@ -19,7 +19,7 @@ export class DataEventRecordsService {
         this.headers = new HttpHeaders();
         this.headers = this.headers.set('Content-Type', 'application/json');
         this.headers = this.headers.set('Accept', 'application/json');
-        this.headers = this.headers.set('NeedAuth', "true");
+        this.headers = this.headers.set('no_redirect', "true");
     }
 
     public GetAll = (): Observable<DataEventRecord[]> => {

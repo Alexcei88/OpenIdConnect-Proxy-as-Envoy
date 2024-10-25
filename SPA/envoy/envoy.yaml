@@ -98,6 +98,9 @@ static_resources:
                 auth_scopes:
                   - openid 
                   - profile
+                deny_redirect_matcher:
+                  - name: no_redirect
+                    exact_match: "true"
           - name: envoy.filters.http.router
             typed_config:
                "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
