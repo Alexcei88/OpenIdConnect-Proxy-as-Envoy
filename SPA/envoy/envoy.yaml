@@ -94,7 +94,7 @@ static_resources:
                     sds_config:
                       path: "/etc/envoy/secrets/hmac-secret.yaml"
                 forward_bearer_token: true
-                use_refresh_token: true
+                use_refresh_token: false
                 auth_scopes:
                   - openid 
                   - profile
