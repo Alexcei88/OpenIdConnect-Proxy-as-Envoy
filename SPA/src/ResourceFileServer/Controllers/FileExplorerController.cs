@@ -6,7 +6,7 @@ using ResourceFileServer.Providers;
 namespace ResourceFileServer.Controllers;
 
 [Authorize("securedFiles")]
-[Route("api/[controller]")]
+[Route("resourceFileServer/api/[controller]")]
 public class FileExplorerController : Controller
 {
     private readonly ISecuredFileProvider _securedFileProvider;
@@ -16,11 +16,11 @@ public class FileExplorerController : Controller
         _securedFileProvider = securedFileProvider;
     }
 
+    //[Authorize("securedFilesUser")]
     [HttpGet]
     public IActionResult Get()
     {
-        var adminClaim = User.Claims.FirstOrDefault(x => x.Type == "role" && x.Value == "securedFiles.admin");
-        var files = _securedFileProvider.GetFilesForUser(adminClaim != null);
+        var files = _securedFileProvider.GetFilesForUser(true);
 
         return Ok(files);
     }

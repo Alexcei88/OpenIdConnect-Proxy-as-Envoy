@@ -13,8 +13,8 @@ export class SecureFileService {
     private headers: HttpHeaders = new HttpHeaders();
 
     constructor(private http: HttpClient, _configuration: Configuration, public oidcSecurityService: OidcSecurityService) {
-        this.actionUrl = `${_configuration.FileServer}api/Download/`;
-        this.fileExplorerUrl = `${_configuration.FileServer }api/FileExplorer/`;
+        this.actionUrl = `${_configuration.FileServer}resourceFileServer/api/Download/`;
+        this.fileExplorerUrl = `${_configuration.FileServer }resourceFileServer/api/FileExplorer/`;
     }
 
     public DownloadFile(id: string) {
@@ -41,11 +41,5 @@ export class SecureFileService {
         this.headers = new HttpHeaders();
         this.headers = this.headers.set('Content-Type', 'application/json');
         this.headers = this.headers.set('Accept', 'application/json');
-
-        const token = this.oidcSecurityService.getAccessToken();
-        if (token !== '') {
-            const tokenValue = 'Bearer ' + token;
-            this.headers = this.headers.set('Authorization', tokenValue);
-        }
     }
 }

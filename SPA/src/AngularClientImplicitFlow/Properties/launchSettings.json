@@ -10,14 +10,17 @@
   "profiles": {
     "IIS Express": {
       "commandName": "IISExpress",
-      "launchBrowser": true,
+      "launchBrowser": false,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
     "web": {
       "commandName": "Project",
+      "dotnetRunMessages": "false",
+      "launchBrowser": false,
       "environmentVariables": {
+        "ENV ASPNETCORE_URLS": "http://+:5000",
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }

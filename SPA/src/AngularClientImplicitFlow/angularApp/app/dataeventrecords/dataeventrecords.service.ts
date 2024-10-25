@@ -3,7 +3,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { Observable } from 'rxjs';
 import { Configuration } from '../app.constants';
-import { OidcSecurityService } from '../auth/angular-auth-oidc-client';
 import { DataEventRecord } from './models/DataEventRecord';
 
 @Injectable()
@@ -12,20 +11,15 @@ export class DataEventRecordsService {
     private actionUrl: string;
     private headers: HttpHeaders = new HttpHeaders();
 
-    constructor(private http: HttpClient, configuration: Configuration, private _securityService: OidcSecurityService) {
-        this.actionUrl = `${configuration.Server}api/DataEventRecords/`;
+    constructor(private http: HttpClient, configuration: Configuration) {
+        this.actionUrl = `${configuration.Server}resourceServer/api/DataEventRecords/`;
     }
 
     private setHeaders() {
         this.headers = new HttpHeaders();
         this.headers = this.headers.set('Content-Type', 'application/json');
         this.headers = this.headers.set('Accept', 'application/json');
-
-        const token = this._securityService.getAccessToken();
-        if (token !== '') {
-            const tokenValue = 'Bearer ' + token;
-            this.headers = this.headers.append('Authorization', tokenValue);
-        }
+        this.headers = this.headers.set('NeedAuth', "true");
     }
 
     public GetAll = (): Observable<DataEventRecord[]> => {

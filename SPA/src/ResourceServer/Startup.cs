@@ -11,6 +11,7 @@ using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
 using ResourceServer.DataProtection;
 using System;
+using System.Threading.Tasks;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -32,8 +33,6 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         var connection = Configuration.GetConnectionString("DefaultConnection");
-        var useLocalCertStore = Convert.ToBoolean(Configuration["UseLocalCertStore"]);
-        var certificateThumbprint = Configuration["CertificateThumbprint"];
 
         X509Certificate2 cert = new X509Certificate2(Path.Combine(_webHostEnvironment.ContentRootPath, "damienbodserver.pfx"), "");
 
@@ -60,7 +59,7 @@ public class Startup
                     builder
                         .AllowCredentials()
                         .WithOrigins(
-                            "http://localhost:8080",
+                            "https://localhost:14100",
                             "https://localhost:44311",
                             "https://localhost:44352",
                             "https://localhost:44372",
@@ -127,7 +126,7 @@ public class Startup
             {
                 Title = "Resource server",
                 Version = "v1",
-                Description = "Resource Server",
+                Description = "Recource Server",
                 Contact = new OpenApiContact
                 {
                     Name = "damienbod",

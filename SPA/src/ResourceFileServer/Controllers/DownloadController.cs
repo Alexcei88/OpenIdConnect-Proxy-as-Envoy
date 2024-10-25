@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 namespace ResourceFileServer.Controllers;
 
 [Authorize]
-[Route("api/[controller]")]
+[Route("resourceFileServer/api/[controller]")]
 public class DownloadController : Controller
 {
     private readonly IWebHostEnvironment _appEnvironment;
@@ -35,6 +35,7 @@ public class DownloadController : Controller
     }
 
     [Authorize]
+    //[Authorize("securedFilesUser")]
     [HttpGet("GenerateOneTimeAccessToken/{id}")]
     public IActionResult GenerateOneTimeAccessToken(string id)
     {
@@ -49,8 +50,7 @@ public class DownloadController : Controller
             return NotFound($"File does not exist: {id}");
         }
 
-        var adminClaim = User.Claims.FirstOrDefault(x => x.Type == "role" && x.Value == "securedFiles.admin");
-        if (_securedFileProvider.HasUserClaimToAccessFile(id, adminClaim != null))
+        if (_securedFileProvider.HasUserClaimToAccessFile(id, true))
         {
             // TODO generate a one time access token
             var oneTimeToken = _securedFileProvider.AddFileIdForUseOnceAccessId(filePath);

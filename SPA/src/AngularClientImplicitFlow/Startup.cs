@@ -34,6 +34,7 @@ namespace AngularClient
                             .AllowCredentials()
                             .WithOrigins(
                                 "http://localhost:8080",
+                                "https://localhost:14100",
                                 "https://localhost:44311",
                                 "https://localhost:44352",
                                 "https://localhost:44372",

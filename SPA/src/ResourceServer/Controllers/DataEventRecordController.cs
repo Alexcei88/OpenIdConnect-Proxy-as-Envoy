@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ResourceServer.Controllers;
 
 [Authorize("dataEventRecords")]
-[Route("api/[controller]")]
+[Route("resourceServer/api/[controller]")]
 public class DataEventRecordsController : Controller
 {
     private readonly IDataEventRecordRepository _dataEventRecordRepository;
