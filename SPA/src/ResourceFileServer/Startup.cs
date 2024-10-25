@@ -33,7 +33,7 @@ public class Startup
                     builder
                         .AllowCredentials()
                         .WithOrigins(
-                            "http://localhost:8080",
+                            "https://localhost:8080",
                             "https://localhost:44311",
                             "https://localhost:44352",
                             "https://localhost:44372",

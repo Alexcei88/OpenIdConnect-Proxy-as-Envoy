@@ -22,7 +22,7 @@ export class SecureFileService {
         let oneTimeAccessToken = '';
 
         this.http.get(`${this.actionUrl}GenerateOneTimeAccessToken/${id}`, {
-            headers: this.headers
+            headers: this.headers, withCredentials: true
         }).subscribe(
             (data: any) => {
                 oneTimeAccessToken = data.oneTimeToken;
@@ -34,18 +34,12 @@ export class SecureFileService {
     public GetListOfFiles = (): Observable<string[]> => {
         this.setHeaders();
 
-        return this.http.get<string[]>(this.fileExplorerUrl, { headers: this.headers });
+        return this.http.get<string[]>(this.fileExplorerUrl, { headers: this.headers, withCredentials: true });
     }
 
     private setHeaders() {
         this.headers = new HttpHeaders();
         this.headers = this.headers.set('Content-Type', 'application/json');
         this.headers = this.headers.set('Accept', 'application/json');
-
-        const token = this.oidcSecurityService.getAccessToken();
-        if (token !== '') {
-            const tokenValue = 'Bearer ' + token;
-            this.headers = this.headers.set('Authorization', tokenValue);
-        }
     }
 }

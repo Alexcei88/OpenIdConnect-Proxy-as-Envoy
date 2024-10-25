@@ -17,7 +17,9 @@
     },
     "web": {
       "commandName": "Project",
+      "dotnetRunMessages": "true",
       "environmentVariables": {
+        "ENV ASPNETCORE_URLS": "https://+:5000",
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }

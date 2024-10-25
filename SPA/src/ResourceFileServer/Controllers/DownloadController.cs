@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using ResourceFileServer.Providers;
@@ -21,7 +21,7 @@ public class DownloadController : Controller
 
     [AllowAnonymous]
     [HttpGet("{accessId}/{id}")]
-    public IActionResult Get(string accessId, string id)
+    public FileContentResult Get(string accessId, string id)
     {
         var filePath = _securedFileProvider.GetFileIdForUseOnceAccessId(accessId);
         if (!string.IsNullOrEmpty(filePath))
@@ -31,12 +31,14 @@ public class DownloadController : Controller
         }
 
         // returning a HTTP Forbidden result.
-        return new StatusCodeResult(401);
+        Response.StatusCode = 401;
+        return new FileContentResult(Array.Empty<byte>(), "application/octet-stream");
     }
 
     [Authorize]
+    //[Authorize("securedFilesUser")]
     [HttpGet("GenerateOneTimeAccessToken/{id}")]
-    public IActionResult GenerateOneTimeAccessToken(string id)
+    public ActionResult<DownloadToken> GenerateOneTimeAccessToken(string id)
     {
         if (!_securedFileProvider.FileIdExists(id))
         {
@@ -49,8 +51,7 @@ public class DownloadController : Controller
             return NotFound($"File does not exist: {id}");
         }
 
-        var adminClaim = User.Claims.FirstOrDefault(x => x.Type == "role" && x.Value == "securedFiles.admin");
-        if (_securedFileProvider.HasUserClaimToAccessFile(id, adminClaim != null))
+        if (_securedFileProvider.HasUserClaimToAccessFile(id, true))
         {
             // TODO generate a one time access token
             var oneTimeToken = _securedFileProvider.AddFileIdForUseOnceAccessId(filePath);

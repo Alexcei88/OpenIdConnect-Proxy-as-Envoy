@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using ResourceFileServer.Providers;
 
@@ -16,12 +15,11 @@ public class FileExplorerController : Controller
         _securedFileProvider = securedFileProvider;
     }
 
+    //[Authorize("securedFilesUser")]
     [HttpGet]
-    public IActionResult Get()
+    public ActionResult<string[]> Get()
     {
-        var adminClaim = User.Claims.FirstOrDefault(x => x.Type == "role" && x.Value == "securedFiles.admin");
-        var files = _securedFileProvider.GetFilesForUser(adminClaim != null);
-
+        var files = _securedFileProvider.GetFilesForUser(true);
         return Ok(files);
     }
 }

@@ -1,12 +1,13 @@
 import {
-    OidcClientNotification,
     OidcSecurityService,
 } from './auth/angular-auth-oidc-client';
-import { ConfigAuthenticatedResult } from './auth/authState/auth-result';
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { LocaleService, TranslationService, Language } from 'angular-l10n';
 import './app.component.css';
+import {AuthStateService} from "./auth/authState/auth-state.service";
+import {Router} from "@angular/router";
+import {HttpClient} from "@angular/common/http";
 
 @Component({
     selector: 'app-component',
@@ -18,39 +19,35 @@ export class AppComponent implements OnInit {
     @Language() lang = '';
 
     title = '';
-    userDataChanged$: Observable<OidcClientNotification<any>>;
     userName = '';
-    userData$: Observable<any>;
-    isAuthenticated$: Observable<boolean | ConfigAuthenticatedResult[]>;
-    checkSessionChanged$: Observable<boolean>;
-    checkSessionChanged: any;
+    isAuthenticated$: Observable<boolean>;
 
     constructor(
         public oidcSecurityService: OidcSecurityService,
         public locale: LocaleService,
         public translation: TranslationService
-    ) {
+) {
         console.log('AppComponent STARTING');
     }
 
     ngOnInit() {
-        this.userData$ = this.oidcSecurityService.userData$;
         this.isAuthenticated$ = this.oidcSecurityService.isAuthenticated$;
-        this.checkSessionChanged$ = this.oidcSecurityService.checkSessionChanged$;
-
-        this.oidcSecurityService.checkAuth().subscribe((response) => {
-            if (response != null && response.userData != null) {
-                this.userName = response.userData["name"];
-                console.log('app authenticated', response.isAuthenticated)
+        this.isAuthenticated$.subscribe((isAuthentificated) => {
+            if (isAuthentificated) {
             }
         });
-    }
 
-    changeCulture(language: string, country: string) {
-        this.locale.setDefaultLocale(language, country);
-        console.log('set language: ' + language);
+        this.oidcSecurityService.checkAuth().subscribe((response) => {
+            if (response == null) {
+                console.log('app not authenticated')
+                return;
+            }
+            this.userName = response.userData["name"];
+            console.log('app authenticated', response.isAuthenticated)
+        },
+            error => console.log('app not authenticated'));
     }
-
+    
     login() {
         console.log('start login');
 
@@ -60,7 +57,7 @@ export class AppComponent implements OnInit {
         }
         console.log(culture);
 
-        this.oidcSecurityService.authorize(null, { customParams: { 'ui_locales': culture } });
+        this.oidcSecurityService.authorize();
     }
 
     refreshSession() {

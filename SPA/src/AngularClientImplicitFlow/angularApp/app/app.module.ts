@@ -1,4 +1,4 @@
-import { NgModule, APP_INITIALIZER } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -6,7 +6,7 @@ import { AppComponent } from './app.component';
 import { Configuration } from './app.constants';
 import { routing } from './app.routes';
 
-import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS  } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS  } from '@angular/common/http';
 import { SecureFileService } from './securefile/SecureFileService';
 
 import { ForbiddenComponent } from './forbidden/forbidden.component';
@@ -15,11 +15,10 @@ import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
 import { SecureFilesComponent } from './securefile/securefiles.component';
 import { DataEventRecordsModule } from './dataeventrecords/dataeventrecords.module';
 
-import { AuthModule, OidcConfigService, StsConfigHttpLoader, StsConfigLoader } from './auth/angular-auth-oidc-client';
+import { AuthModule } from './auth/angular-auth-oidc-client';
 
 import { L10nConfig, L10nLoader, TranslationModule, StorageStrategy, ProviderType } from 'angular-l10n';
 import { AuthorizationGuard } from './authorization.guard';
-import { map, switchMap } from 'rxjs/operators';
 import {UnAuthInterceptor} from "./interceptors/unAuthInterceptors";
 
 const l10nConfig: L10nConfig = {
@@ -42,37 +41,6 @@ const l10nConfig: L10nConfig = {
     }
 };
 
-export const httpLoaderFactory = (httpClient: HttpClient) => {
-    const config$ = httpClient
-        .get<any>(`http://localhost:5000/api/ClientAppSettings`)
-        .pipe(
-            map((customConfig: any) => {
-                return {
-                    stsServer: customConfig.stsServer,
-                    redirectUrl: customConfig.redirect_url,
-                    clientId: customConfig.client_id,
-                    responseType: customConfig.response_type,
-                    scope: customConfig.scope,
-                    postLogoutRedirectUri: customConfig.post_logout_redirect_uri,
-                    startCheckSession: customConfig.start_checksession,
-                    silentRenew: customConfig.silent_renew,
-                    silentRenewUrl: customConfig.redirect_url + '/silent-renew.html',
-                    postLoginRoute: customConfig.startup_route,
-                    forbiddenRoute: customConfig.forbidden_route,
-                    unauthorizedRoute: customConfig.unauthorized_route,
-                    logLevel: 0, // LogLevel.logLevel or customConfig.logLevel
-                    maxIdTokenIatOffsetAllowedInSeconds: customConfig.max_id_token_iat_offset_allowed_in_seconds,
-                    historyCleanupOff: true,
-                   // autoUserInfo: false,
-                };
-            })
-        )
-        .toPromise();
-
-    return new StsConfigHttpLoader(config$);
-};
-
-
 @NgModule({
     imports: [
         BrowserModule,
@@ -81,13 +49,7 @@ export const httpLoaderFactory = (httpClient: HttpClient) => {
         HttpClientModule,
         TranslationModule.forRoot(l10nConfig),
         DataEventRecordsModule,
-        AuthModule.forRoot({
-            loader: {
-                provide: StsConfigLoader,
-                useFactory: httpLoaderFactory,
-                deps: [HttpClient],
-            },
-        }),
+        AuthModule.forRoot({}),
     ],
     declarations: [
         AppComponent,

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { SecureFileService } from './SecureFileService';
-import { ConfigAuthenticatedResult, OidcSecurityService } from '../auth/angular-auth-oidc-client';
+import { OidcSecurityService } from '../auth/angular-auth-oidc-client';
 import { switchMap } from 'rxjs/operators';
 
 @Component({
@@ -14,7 +14,7 @@ export class SecureFilesComponent implements OnInit {
 
     public message: string;
     public Files: string[] = [];
-    isAuthenticated$: Observable<boolean | ConfigAuthenticatedResult[]>;
+    isAuthenticated$: Observable<boolean>;
 
     constructor(private _secureFileService: SecureFileService, public oidcSecurityService: OidcSecurityService) {
         this.message = 'Secure Files download';

@@ -1,14 +1,18 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using System.IO;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 using AngularClient.ViewModel;
-using Microsoft.AspNetCore.Mvc;
+using Clients;
+using FileServer.Clients;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace AngularClient
 {
@@ -24,7 +28,22 @@ namespace AngularClient
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<ClientAppSettings>(Configuration.GetSection("ClientAppSettings"));
+            services.AddSingleton(sp =>
+            {
+                var settings = sp.GetRequiredService<IOptions<ClientAppSettings>>().Value;
+                var client = sp.GetRequiredService<IHttpClientFactory>().CreateClient();
 
+                return new ResourceServerClient(settings.apiServer, client);
+            });
+
+            services.AddSingleton(sp =>
+            {
+                var settings = sp.GetRequiredService<IOptions<ClientAppSettings>>().Value;
+                var client = sp.GetRequiredService<IHttpClientFactory>().CreateClient();
+
+                return new ResourceFileServerClient(settings.apiFileServer, client);
+            });
+            
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowAllOrigins",
@@ -33,7 +52,9 @@ namespace AngularClient
                         builder
                             .AllowCredentials()
                             .WithOrigins(
-                                "http://localhost:8080",
+                                "null",
+                                "https://localhost:8080",
+                                "http://localhost:14100",
                                 "https://localhost:44311",
                                 "https://localhost:44352",
                                 "https://localhost:44372",
@@ -46,6 +67,47 @@ namespace AngularClient
             });
 
             services.AddControllersWithViews();
+            services.AddHttpClient();
+            
+            services.AddAuthentication(options =>
+                {
+                    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                })
+                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,options =>
+                {
+                    options.Cookie.Name = "OIDCDemoSite";
+                    options.Cookie.HttpOnly = true;
+                    //options.
+                    options.Events = new CookieAuthenticationEvents
+                    {
+                        OnValidatePrincipal = cc =>
+                        {
+                            cc.HttpContext.Items.Add("AccessToken", cc.Properties.Items.FirstOrDefault(c => c.Key == ".Token.access_token").Value);
+                            return Task.CompletedTask;
+                        },
+                    };
+                })
+                .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
+                {
+                    options.Authority = "https://idp.ca.testkontur.ru:8444/realms/Kontur";
+                    options.ClientId = "TestShmakov";
+                    options.ClientSecret = Environment.GetEnvironmentVariable("FEMIDA_SECRET_CLIENT_ID");
+
+                    // code flow
+                    options.ResponseType = OpenIdConnectResponseType.Code;
+                    options.UsePkce = false;
+                    
+                    options.Scope.Clear();
+                    options.Scope.Add("openid");
+                    options.Scope.Add("profile");
+                    options.Scope.Add("email");
+
+                    options.SaveTokens = true;
+                    
+                    // the duration of the cookie will be the same as the id token lifetime
+                    options.UseTokenLifetime = true;
+                });
         }
 
         public void Configure(IApplicationBuilder app)
@@ -77,11 +139,15 @@ namespace AngularClient
                 await next();
             });
 
+            app.UseHttpsRedirection();
             app.UseDefaultFiles();
             app.UseStaticFiles();
 
             app.UseRouting();
 
+            app.UseAuthentication();
+            app.UseAuthorization();
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

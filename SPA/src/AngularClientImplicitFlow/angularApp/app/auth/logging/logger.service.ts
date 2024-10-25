@@ -4,7 +4,7 @@ import { LogLevel } from './log-level';
 
 @Injectable()
 export class LoggerService {
-  constructor(private configurationProvider: ConfigurationProvider) {}
+  constructor() {}
 
   logError(configId: string, message: any, ...args: any[]): void {
     if (this.loggingIsTurnedOff(configId)) {
@@ -59,28 +59,16 @@ export class LoggerService {
   }
 
   private currentLogLevelIsEqualOrSmallerThan(configId: string, logLevelToCompare: LogLevel): boolean {
-    const { logLevel } = this.configurationProvider.getOpenIDConfiguration(configId) || {};
-
-    return logLevel <= logLevelToCompare;
+    
+    return 0 <= logLevelToCompare;
   }
 
   private logLevelIsSet(configId: string): boolean {
-    const { logLevel } = this.configurationProvider.getOpenIDConfiguration(configId) || {};
-
-    if (logLevel === null) {
-      return false;
-    }
-
-    if (logLevel === undefined) {
-      return false;
-    }
-
-    return true;
+    return false;
   }
 
   private loggingIsTurnedOff(configId: string): boolean {
-    const { logLevel } = this.configurationProvider.getOpenIDConfiguration(configId) || {};
-
-    return logLevel === LogLevel.None;
+    
+    return 0 === LogLevel.None;
   }
 }

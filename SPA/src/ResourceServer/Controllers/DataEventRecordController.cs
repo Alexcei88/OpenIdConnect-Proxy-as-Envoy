@@ -18,14 +18,14 @@ public class DataEventRecordsController : Controller
 
     [Authorize("dataEventRecordsUser")]
     [HttpGet]
-    public IActionResult Get()
+    public ActionResult<DataEventRecord[]> Get()
     {
         return Ok(_dataEventRecordRepository.GetAll());
     }
 
     [Authorize("dataEventRecordsAdmin")]
     [HttpGet("{id}")]
-    public IActionResult Get(long id)
+    public ActionResult<DataEventRecord> Get(long id)
     {
         return Ok(_dataEventRecordRepository.Get(id));
     }

@@ -3,7 +3,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { Observable } from 'rxjs';
 import { Configuration } from '../app.constants';
-import { OidcSecurityService } from '../auth/angular-auth-oidc-client';
 import { DataEventRecord } from './models/DataEventRecord';
 
 @Injectable()
@@ -12,7 +11,7 @@ export class DataEventRecordsService {
     private actionUrl: string;
     private headers: HttpHeaders = new HttpHeaders();
 
-    constructor(private http: HttpClient, configuration: Configuration, private _securityService: OidcSecurityService) {
+    constructor(private http: HttpClient, configuration: Configuration) {
         this.actionUrl = `${configuration.Server}api/DataEventRecords/`;
     }
 
@@ -20,42 +19,36 @@ export class DataEventRecordsService {
         this.headers = new HttpHeaders();
         this.headers = this.headers.set('Content-Type', 'application/json');
         this.headers = this.headers.set('Accept', 'application/json');
-
-        const token = this._securityService.getAccessToken();
-        if (token !== '') {
-            const tokenValue = 'Bearer ' + token;
-            this.headers = this.headers.append('Authorization', tokenValue);
-        }
     }
 
     public GetAll = (): Observable<DataEventRecord[]> => {
         this.setHeaders();
 
-        return this.http.get<DataEventRecord[]>(this.actionUrl, { headers: this.headers });
+        return this.http.get<DataEventRecord[]>(this.actionUrl, { headers: this.headers, withCredentials: true });
     }
 
     public GetById(id: number): Observable<DataEventRecord> {
         this.setHeaders();
         return this.http.get<DataEventRecord>(this.actionUrl + id, {
-            headers: this.headers
+            headers: this.headers, withCredentials: true
         });
     }
 
     public Add(itemToAdd: any): Observable<any> {
         this.setHeaders();
-        return this.http.post<any>(this.actionUrl, JSON.stringify(itemToAdd), { headers: this.headers });
+        return this.http.post<any>(this.actionUrl, JSON.stringify(itemToAdd), { headers: this.headers, withCredentials: true });
     }
 
     public Update(id: number, itemToUpdate: any): Observable<any> {
         this.setHeaders();
         return this.http
-            .put<any>(this.actionUrl + id, JSON.stringify(itemToUpdate), { headers: this.headers });
+            .put<any>(this.actionUrl + id, JSON.stringify(itemToUpdate), { headers: this.headers, withCredentials: true });
     }
 
     public Delete(id: number): Observable<any> {
         this.setHeaders();
         return this.http.delete<any>(this.actionUrl + id, {
-            headers: this.headers
+            headers: this.headers, withCredentials: true
         });
     }
 }
